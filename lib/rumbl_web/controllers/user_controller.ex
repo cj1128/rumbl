@@ -3,29 +3,28 @@ defmodule RumblWeb.UserController do
 
   import RumblWeb.Auth, only: [require_login: 2, login: 2]
 
-  alias Rumbl.{Repo, User}
+  alias Rumbl.Account
+  alias Rumbl.Account.User
 
   plug :require_login when action in [:index, :show]
 
   def index(conn, _params) do
-    users = Repo.all(User)
+    users = Account.list_users()
     render conn, "index.html", users: users
   end
 
   def show(conn, %{"id" => id}) do
-    user = Repo.get(User, id)
+    user = Account.get_user!(id)
     render conn, "show.html", user: user
   end
 
   def new(conn, _) do
-    changeset = User.changeset(%User{})
+    changeset = Account.change_user(%User{})
     render conn, "new.html", changeset: changeset
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.password_changeset(%User{}, user_params)
-
-    case Repo.insert(changeset) do
+    case Account.create_user(user_params) do
       {:ok, user} ->
         conn
         |> login(user)

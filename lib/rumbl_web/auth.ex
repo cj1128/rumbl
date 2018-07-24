@@ -2,6 +2,8 @@ defmodule RumblWeb.Auth do
   import Plug.Conn
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
 
+  alias Rumbl.Account
+
   def login(conn, user) do
     conn
     |> assign(:current_user, user)
@@ -10,7 +12,7 @@ defmodule RumblWeb.Auth do
   end
 
   def login_by_username_and_pass(conn, username, pass) do
-    user = Rumbl.Repo.get_by(Rumbl.User, username: username)
+    user = Account.get_user_by(username: username)
 
     cond do
       user && checkpw(pass, user.password_hash) ->
@@ -29,9 +31,10 @@ defmodule RumblWeb.Auth do
 
   ## Plugs
 
+  def fetch_user_from_session(%{assigns: %{current_user: _}} = conn, _opts), do: conn
   def fetch_user_from_session(conn, _opts) do
     user_id = get_session(conn, :user_id)
-    user = user_id && Rumbl.Repo.get(Rumbl.User, user_id)
+    user = user_id && Account.get_user(user_id)
     assign(conn, :current_user, user)
   end
 
