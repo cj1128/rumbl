@@ -5,7 +5,6 @@ defmodule RumblWeb.VideoController do
   alias Rumbl.Videos.Video
 
   alias Rumbl.Categories
-  alias Rumbl.Categories.Category
 
   plug :load_categories when action in [:new, :create, :edit, :update]
 

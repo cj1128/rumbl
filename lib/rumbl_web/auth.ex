@@ -31,18 +31,27 @@ defmodule RumblWeb.Auth do
 
   ## Plugs
 
-  def fetch_user_from_session(%{assigns: %{current_user: _}} = conn, _opts), do: conn
+  # make sure `conn.assigns.current_user` exists
   def fetch_user_from_session(conn, _opts) do
     user_id = get_session(conn, :user_id)
-    user = user_id && Account.get_user(user_id)
-    assign(conn, :current_user, user)
+
+    cond do
+      conn.assigns[:current_user] ->
+        conn
+
+      user = user_id && Account.get_user(user_id) ->
+        assign(conn, :current_user, user)
+
+      true ->
+        assign(conn, :current_user, nil)
+    end
   end
 
   def require_login(conn, _opts) do
     import Phoenix.Controller
     alias RumblWeb.Router.Helpers
 
-    if conn.assigns.current_user do
+    if conn.assigns[:current_user] do
       conn
     else
       conn
