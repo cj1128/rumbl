@@ -27,4 +27,19 @@ defmodule Rumbl.Account do
     |> User.password_changeset(attrs)
     |> Repo.insert()
   end
+
+  def authenticate_user(username, pass) do
+    user = get_user_by(username: username)
+
+    cond do
+      user && Comeonin.Bcrypt.checkpw(pass, user.password_hash) ->
+        {:ok, user}
+
+      user ->
+        {:error, :unauthorized}
+
+      true ->
+        {:error, :not_found}
+    end
+  end
 end

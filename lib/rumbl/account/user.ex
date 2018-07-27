@@ -19,7 +19,7 @@ defmodule Rumbl.Account.User do
     |> cast(params, ~w(name username))
     |> unique_constraint(:username, name: :users_username_key)
     |> validate_required([:name, :username])
-    |> validate_length(:username, min: 1, max: 20)
+    |> validate_length(:username, max: 20)
   end
 
   def password_changeset(model, params) do
@@ -27,7 +27,7 @@ defmodule Rumbl.Account.User do
     |> changeset(params)
     |> cast(params, ~w(password))
     |> validate_required(:password)
-    |> validate_length(:password, min: 6, max: 100)
+    |> validate_length(:password, min: 6, max: 20)
     |> put_pass_hash()
   end
 

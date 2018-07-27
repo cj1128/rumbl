@@ -24,9 +24,9 @@ defmodule RumblWeb.VideoControllerTest do
     end
 
     test "authorize actions against access by other users", %{conn: conn} do
-      user = create_user()
-      video = create_video(user)
-      non_owner = create_user(username: "other")
+      user = user_fixture()
+      video = video_fixture(user)
+      non_owner = user_fixture(username: "other")
 
       conn = assign(conn, :current_user, non_owner)
 
@@ -52,9 +52,9 @@ defmodule RumblWeb.VideoControllerTest do
     setup [:log_user_in]
 
     test "list all videos", %{conn: conn, user: user, category: category} do
-      user_video = create_video(user, title: "title1", category_id: category.id)
+      user_video = video_fixture(user, title: "title1", category_id: category.id)
 
-      other_video = create_video(create_user(username: "other"), title: "title2", category_id: category.id)
+      other_video = video_fixture(user_fixture(username: "other"), title: "title2", category_id: category.id)
 
       conn = get conn, video_path(conn, :index)
       assert html_response(conn, 200) =~ "Listing Videos"
@@ -94,7 +94,7 @@ defmodule RumblWeb.VideoControllerTest do
     setup [:log_user_in]
 
     test "renders form for editing chosen video", %{conn: conn, user: user} do
-      video = create_video(user)
+      video = video_fixture(user)
       conn = get conn, video_path(conn, :edit, video)
       assert html_response(conn, 200) =~ "Edit Video"
     end
@@ -104,7 +104,7 @@ defmodule RumblWeb.VideoControllerTest do
     setup [:log_user_in]
 
     test "redirects when data is valid", %{conn: conn, user: user} do
-      video = create_video(user)
+      video = video_fixture(user)
       back_conn = patch conn, video_path(conn, :update, video), video: @update_attrs
       assert redirected_to(back_conn) == video_path(back_conn, :show, video)
 
@@ -113,7 +113,7 @@ defmodule RumblWeb.VideoControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
-      video = create_video(user)
+      video = video_fixture(user)
       conn = patch conn, video_path(conn, :update, video), video: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit Video"
     end
@@ -123,7 +123,7 @@ defmodule RumblWeb.VideoControllerTest do
     setup [:log_user_in]
 
     test "deletes chosen video", %{conn: conn, user: user} do
-      video = create_video(user)
+      video = video_fixture(user)
       back_conn = delete conn, video_path(conn, :delete, video)
       assert redirected_to(back_conn) == video_path(conn, :index)
 
@@ -134,20 +134,11 @@ defmodule RumblWeb.VideoControllerTest do
   end
 
   defp log_user_in(%{conn: conn} ) do
-    user = create_user(username: "user")
+    user = user_fixture(username: "user")
     category = create_category(name: "cat1")
     new_conn = assign(conn, :current_user, user)
 
     %{conn: new_conn, user: user, category: category}
-  end
-
-  defp create_video(user, attrs \\ %{}) do
-    {:ok, video} = Videos.create_video(user, Enum.into(attrs, %{
-      url: "url",
-      title: "title",
-    }))
-
-    video
   end
 
   defp create_category(attrs) do

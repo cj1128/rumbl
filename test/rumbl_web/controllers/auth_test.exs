@@ -58,7 +58,7 @@ defmodule Rumbl.AuthTest do
     end
 
     test "place user from session into assigns", %{conn: conn} do
-      user = create_user()
+      user = user_fixture()
 
       conn =
         conn

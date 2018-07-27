@@ -12,16 +12,9 @@ defmodule RumblWeb.Auth do
   end
 
   def login_by_username_and_pass(conn, username, pass) do
-    user = Account.get_user_by(username: username)
-
-    cond do
-      user && checkpw(pass, user.password_hash) ->
-        {:ok, login(conn, user)}
-      user ->
-        {:error, :unauthorized, conn}
-      true ->
-        dummy_checkpw()
-        {:error, :not_found, conn}
+    case Rumbl.Account.authenticate_user(username, pass) do
+      {:ok, user} -> {:ok, login(conn, user)}
+      {:error, reason} -> {:error, reason, conn}
     end
   end
 
