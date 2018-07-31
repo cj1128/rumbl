@@ -1,9 +1,11 @@
-defmodule Rumbl.Videos do
+defmodule Rumbl.Multimedia do
   import Ecto.Query
   alias Rumbl.Repo
 
-  alias Rumbl.Videos.Video
+  alias Rumbl.Multimedia.{Video, Category}
   alias Rumbl.Account.User
+
+  # Video
 
   def list_user_videos(user) do
     query =
@@ -13,8 +15,9 @@ defmodule Rumbl.Videos do
   end
 
   def get_user_video!(user, id) do
-    query =
-      from v in Video, where: v.user_id == ^user.id, preload: [:category]
+    query = from v in Video,
+      where: v.user_id == ^user.id and v.id == ^id,
+      preload: [:category]
 
     Repo.one! query
   end
@@ -38,5 +41,21 @@ defmodule Rumbl.Videos do
 
   def change_video(%Video{} = video) do
     Video.changeset(video, %{})
+  end
+
+  # Category
+
+  def list_categories do
+    Repo.all(Category)
+  end
+
+  def create_category(attrs \\ %{}) do
+    %Category{}
+    |> Category.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def list_alphabetical_categories do
+    Repo.all(from c in Category, order_by: c.name)
   end
 end

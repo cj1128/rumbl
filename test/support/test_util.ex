@@ -1,7 +1,7 @@
 defmodule Rumbl.TestUtil do
   alias Rumbl.{
     Account,
-    Videos
+    Multimedia,
   }
 
   def user_fixture(attrs \\ %{}) do
@@ -25,7 +25,22 @@ defmodule Rumbl.TestUtil do
         description: "description",
       })
 
-    {:ok, video} = Videos.create_video(user, attrs)
+    category_id =
+      if attrs[:category_id] do
+        attrs[:category_id]
+      else
+        case Multimedia.list_categories() do
+          [] ->
+            {:ok, cate} = Multimedia.create_category(%{name: "tmp"})
+            cate.id
+          [h|t] ->
+            h.id
+        end
+      end
+
+    attrs = Map.put(attrs, :category_id, category_id)
+
+    {:ok, video} = Multimedia.create_video(user, attrs)
 
     video
   end

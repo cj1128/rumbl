@@ -1,7 +1,7 @@
 defmodule RumblWeb.VideoControllerTest do
   use RumblWeb.ConnCase
 
-  alias Rumbl.Videos
+  alias Rumbl.Multimedia
 
   @create_attrs %{description: "some description", title: "some title", url: "some url"}
   @update_attrs %{description: "some updated description", title: "some updated title", url: "some updated url"}
@@ -51,10 +51,9 @@ defmodule RumblWeb.VideoControllerTest do
   describe "Index" do
     setup [:log_user_in]
 
-    test "list all videos", %{conn: conn, user: user, category: category} do
-      user_video = video_fixture(user, title: "title1", category_id: category.id)
-
-      other_video = video_fixture(user_fixture(username: "other"), title: "title2", category_id: category.id)
+    test "list all videos", %{conn: conn, user: user} do
+      user_video = video_fixture(user, title: "title1")
+      other_video = video_fixture(user_fixture(username: "other"), title: "title2")
 
       conn = get conn, video_path(conn, :index)
       assert html_response(conn, 200) =~ "Listing Videos"
@@ -76,12 +75,13 @@ defmodule RumblWeb.VideoControllerTest do
     setup [:log_user_in]
 
     test "redirects to show when data is valid", %{conn: conn, user: user} do
-      conn = post conn, video_path(conn, :create), video: @create_attrs
+      {:ok, cate} = Multimedia.create_category(%{name: "tmp"})
+      next_conn = post conn, video_path(conn, :create), video: Map.put(@create_attrs, :category_id, cate.id)
 
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == video_path(conn, :show, id)
+      assert %{id: id} = redirected_params(next_conn)
+      assert redirected_to(next_conn) == video_path(conn, :show, id)
 
-      assert Videos.get_user_video!(user, id)
+      assert Multimedia.get_user_video!(user, id)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -135,15 +135,8 @@ defmodule RumblWeb.VideoControllerTest do
 
   defp log_user_in(%{conn: conn} ) do
     user = user_fixture(username: "user")
-    category = create_category(name: "cat1")
     new_conn = assign(conn, :current_user, user)
 
-    %{conn: new_conn, user: user, category: category}
-  end
-
-  defp create_category(attrs) do
-    {:ok, category} = Rumbl.Categories.create_category(Enum.into(attrs, %{}))
-
-    category
+    %{conn: new_conn, user: user}
   end
 end

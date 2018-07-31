@@ -3,8 +3,8 @@ defmodule RumblWeb.VideoViewTest do
 
   import Phoenix.View
 
-  alias Rumbl.Videos.Video
-  alias Rumbl.Categories.Category
+  alias Rumbl.Multimedia
+  alias Rumbl.Multimedia.{Video, Category}
 
   test "render index.html", %{conn: conn} do
     videos = [
@@ -20,13 +20,14 @@ defmodule RumblWeb.VideoViewTest do
   end
 
   test "render new.html", %{conn: conn} do
-    changeset = Rumbl.Videos.change_video(%Rumbl.Videos.Video{})
-    categories = [{"cats", 1}]
+    changeset = Multimedia.change_video(%Video{})
+    {:ok, cate} = Multimedia.create_category(%{name: "cat"})
+    categories = [cate]
 
     content = render_to_string(RumblWeb.VideoView, "new.html",
       conn: conn,
-      changeset:
-      changeset, categories: categories
+      changeset: changeset,
+      categories: categories
     )
 
     assert String.contains?(content, "New Video")

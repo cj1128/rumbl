@@ -1,25 +1,23 @@
 defmodule RumblWeb.VideoController do
   use RumblWeb, :controller
 
-  alias Rumbl.Videos
-  alias Rumbl.Videos.Video
-
-  alias Rumbl.Categories
+  alias Rumbl.Multimedia
+  alias Rumbl.Multimedia.Video
 
   plug :load_categories when action in [:new, :create, :edit, :update]
 
   def index(conn, _params, user) do
-    videos = Videos.list_user_videos(user)
+    videos = Multimedia.list_user_videos(user)
     render(conn, "index.html", videos: videos)
   end
 
   def new(conn, _params, _user) do
-    changeset = Videos.change_video(%Video{})
+    changeset = Multimedia.change_video(%Video{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"video" => video_params}, user) do
-    case Videos.create_video(user, video_params) do
+    case Multimedia.create_video(user, video_params) do
       {:ok, video} ->
         conn
         |> put_flash(:info, "Video created successfully.")
@@ -30,20 +28,20 @@ defmodule RumblWeb.VideoController do
   end
 
   def show(conn, %{"id" => id}, user) do
-    video = Videos.get_user_video!(user, id)
+    video = Multimedia.get_user_video!(user, id)
     render(conn, "show.html", video: video)
   end
 
   def edit(conn, %{"id" => id}, user) do
-    video = Videos.get_user_video!(user, id)
-    changeset = Videos.change_video(video)
+    video = Multimedia.get_user_video!(user, id)
+    changeset = Multimedia.change_video(video)
     render(conn, "edit.html", video: video, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "video" => video_params}, user) do
-    video = Videos.get_user_video!(user, id)
+    video = Multimedia.get_user_video!(user, id)
 
-    case Videos.update_video(video, video_params) do
+    case Multimedia.update_video(video, video_params) do
       {:ok, video} ->
         conn
         |> put_flash(:info, "Video updated successfully.")
@@ -54,8 +52,8 @@ defmodule RumblWeb.VideoController do
   end
 
   def delete(conn, %{"id" => id}, user) do
-    video = Videos.get_user_video!(user, id)
-    {:ok, _video} = Videos.delete_video(video)
+    video = Multimedia.get_user_video!(user, id)
+    {:ok, _video} = Multimedia.delete_video(video)
 
     conn
     |> put_flash(:info, "Video deleted successfully.")
@@ -68,6 +66,6 @@ defmodule RumblWeb.VideoController do
   end
 
   defp load_categories(conn, _) do
-    assign(conn, :categories, Categories.get_names_and_ids())
+    assign(conn, :categories, Multimedia.list_alphabetical_categories())
   end
 end

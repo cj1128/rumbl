@@ -1,11 +1,11 @@
-defmodule Rumbl.Categories.Category do
+defmodule Rumbl.Multimedia.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "categories" do
     field :name, :string
 
-    has_many :videos, Rumbl.Videos.Video
+    has_many :videos, Rumbl.Multimedia.Video
 
     timestamps()
   end

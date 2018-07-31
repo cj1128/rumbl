@@ -1,17 +1,17 @@
-defmodule Rumbl.Videos.Video do
+defmodule Rumbl.Multimedia.Video do
   use Ecto.Schema
   import Ecto.Changeset
 
   @all_attrs [:url, :title, :description, :category_id]
-  @required_attrs [:title, :url]
+  @required_attrs [:title, :url, :category_id]
 
   schema "videos" do
-    field :description, :string
+    field :description, :string, default: ""
     field :title, :string
     field :url, :string
 
     belongs_to :user, Rumbl.Account.User
-    belongs_to :category, Rumbl.Categories.Category
+    belongs_to :category, Rumbl.Multimedia.Category
 
     timestamps()
   end
