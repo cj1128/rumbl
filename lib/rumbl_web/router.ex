@@ -27,6 +27,8 @@ defmodule RumblWeb.Router do
     resources "/sessions", SessionController,
       only: [:new, :create, :delete],
       singleton: true
+
+    get "/watch/:id", WatchController, :show
   end
 
   scope "/manage", RumblWeb do
