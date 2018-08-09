@@ -2,7 +2,8 @@ defmodule Rumbl.Multimedia do
   import Ecto.Query
   alias Rumbl.Repo
 
-  alias Rumbl.Multimedia.{Video, Category}
+  alias Rumbl.Multimedia.{Video, Category, Annotation}
+  alias Rumbl.Account
   alias Rumbl.Account.User
 
   # Video
@@ -20,6 +21,19 @@ defmodule Rumbl.Multimedia do
       preload: [:category]
 
     Repo.one! query
+  end
+
+  def get_video(id) do
+    Repo.get(Video, id)
+  end
+
+  def get_video!(id) do
+    Repo.get!(Video, id)
+  end
+
+  def get_video_preload(id) do
+    v = Repo.get!(Video, id)
+    Repo.preload(v, :user)
   end
 
   def create_video(%User{} = user, attrs \\ %{}) do
@@ -57,5 +71,39 @@ defmodule Rumbl.Multimedia do
 
   def list_alphabetical_categories do
     Repo.all(from c in Category, order_by: c.name)
+  end
+
+  # Annotation
+
+  def list_annotations do
+    Repo.all(Annotation)
+  end
+
+  def get_annotation!(id), do: Repo.get!(Annotation, id)
+
+  def get_annotation_user(annotation) do
+    video = get_video(annotation.video_id)
+    Account.get_user(video.user_id)
+  end
+
+  def create_annotation(video = %Video{}, attrs \\ %{}) do
+    video
+    |> Ecto.build_assoc(:annotations)
+    |> Annotation.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_annotation(%Annotation{} = annotation, attrs) do
+    annotation
+    |> Annotation.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_annotation(%Annotation{} = annotation) do
+    Repo.delete(annotation)
+  end
+
+  def change_annotation(%Annotation{} = annotation) do
+    Annotation.changeset(annotation, %{})
   end
 end
