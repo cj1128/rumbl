@@ -10,9 +10,14 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 alias Rumbl.Repo
-alias Rumbl.Categories.Category
+alias Rumbl.Account
+alias Rumbl.Multimedia.Category
 
+# Category
 for category <- ~w(Action Drama Romance Comedy Sci-fi) do
   Repo.get_by(Category, name: category) ||
     Repo.insert!(%Category{name: category})
 end
+
+# Backend User
+Account.create_user(%{name: "Wolfram", username: "wolfram", password: "wolfram"})

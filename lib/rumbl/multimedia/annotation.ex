@@ -7,6 +7,7 @@ defmodule Rumbl.Multimedia.Annotation do
     field :body, :string
 
     belongs_to :video, Rumbl.Multimedia.Video
+    belongs_to :user, Rumbl.Account.User
 
     timestamps()
   end
@@ -17,5 +18,6 @@ defmodule Rumbl.Multimedia.Annotation do
     |> cast(attrs, [:body, :at])
     |> validate_required([:body, :at])
     |> assoc_constraint(:video)
+    |> assoc_constraint(:user)
   end
 end
